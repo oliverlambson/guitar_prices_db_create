@@ -12,42 +12,53 @@ class BaseModel(pw.Model):
 
 
 class Brand(BaseModel):
+    name = pw.CharField(unique=True)
+
+
+class SubBrand(BaseModel):
     name = pw.CharField()
+    brand = pw.ForeignKeyField(Brand, backref='sub_brands')
 
 
-# class SubBrand(BaseModel):
-#     brand_name = pw.ForeignKeyField(Brand, backref='name')
-#     name = pw.CharField()
-#
-#
-# class Range(BaseModel):
-#     brand_name = pw.ForeignKeyField(Brand, backref='name')
-#     name = pw.CharField()
-#
-#
-# class Model(BaseModel):
-#     brand_name = pw.ForeignKeyField(Brand, backref='name')
-#     name = pw.CharField()
-#
-#
-# class Guitar(BaseModel):
-#     brand_name = pw.ForeignKeyField(Brand, backref='name')
-#     sub_brand_name = pw.ForeignKeyField(SubBrand, backref='name')
-#     range_name = pw.ForeignKeyField(Range, backref='name')
-#     model_name = pw.ForeignKeyField(Model, backref='name')
-#     variant = pw.CharField(null=True)
-#     year = pw.SmallIntegerField()
-#     price = pw.DecimalField(decimal_places=2)
+class Range(BaseModel):
+    name = pw.CharField()
+    brand = pw.ForeignKeyField(Brand, backref='ranges')
+
+
+class Model(BaseModel):
+    name = pw.CharField()
+    brand = pw.ForeignKeyField(Brand, backref='models')
+
+
+class Guitar(BaseModel):
+    variant = pw.CharField(null=True)
+    year = pw.SmallIntegerField()
+    price = pw.DecimalField(decimal_places=2)
+    brand = pw.ForeignKeyField(Brand, backref='brands')
+    sub_brand = pw.ForeignKeyField(SubBrand, backref='sub_brands')
+    range_name = pw.ForeignKeyField(Range, backref='ranges')
+    model = pw.ForeignKeyField(Model, backref='models')
 
 
 def create_db_tables():
-    db.create_tables([Brand])
-    # db.create_tables([Brand, SubBrand])
+    db.create_tables([Brand, SubBrand, Range, Model, Guitar])
 
 
 def test():
     create_db_tables()
-    Brand.create(name='gibson')
+    brand = Brand.create(name='Gibson')
+    sub_brand = SubBrand.create(name='USA', brand=brand)
+    range_name = Range.create(name='Les Paul', brand=brand)
+    model = Model.create(name='Standard', brand=brand)
+    guitar = Guitar.create(
+        variant='var1',
+        year=2018,
+        price=3399,
+        brand=brand,
+        sub_brand=sub_brand,
+        range_name=range_name,
+        model=model
+    )
 
 
 if __name__ == '__main__':
