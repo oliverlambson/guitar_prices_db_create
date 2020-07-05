@@ -40,4 +40,26 @@ def view_guitars():
 
 
 def plot_histograms():
-    pass
+    subbrands = SubBrand.select()
+    separator_line = '-'*8*3
+    print(separator_line)
+    print(f"{'No.':4.3s}"
+          f"{'Brand':7.7s}\t"
+          f"{'SubBrand':15.15s}"
+    )
+    print(separator_line)
+    for i, subbrand in enumerate(subbrands):
+        if i == 999:
+            break
+        print(f'{i:3d} '
+              f'{subbrand.brand.name:7.7s}\t'
+              f'{subbrand.name:15.15s}'
+        )
+    print(separator_line)
+
+    for i, subbrand in enumerate(subbrands):
+        query = (Guitar
+                .select()
+                .where(Guitar.brand == subbrand.brand)
+        )
+        print(f'{i:3d}: {subbrand.brand.name}')
